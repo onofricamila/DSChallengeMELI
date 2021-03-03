@@ -1,0 +1,8 @@
+notebook
+pandas
+numpy
+sklearn
+matplotlib
+seaborn
+tqdm
+imblearn
