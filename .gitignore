@@ -3,3 +3,4 @@ debug.log
 Data/
 .vs
 pkl
+*/__pycache__/*
