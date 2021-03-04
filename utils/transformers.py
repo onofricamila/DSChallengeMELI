@@ -5,7 +5,6 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler, KBinsDiscretize
 from functools import reduce
 
 class DummyTransformer(TransformerMixin):
-
     def __init__(self, columns):
         self.dict_values = None
         self.columns = columns
@@ -18,7 +17,6 @@ class DummyTransformer(TransformerMixin):
             a,_ = np.unique(X[col].dropna(), return_inverse=True)
             dict_col_vals[col]=a
         self.dict_values = dict_col_vals    
-       
         return self
 
     def transform(self, X):
@@ -35,9 +33,10 @@ class DummyTransformer(TransformerMixin):
             Xdum_col = Xdum_col.iloc[len(s_values):,:]
             Xdum_col.columns = [col + '_' + col_d for col_d in  Xdum_col.columns]
             Xdum = pd.concat([Xdum,Xdum_col],axis=1)
-       
         return Xdum
 
+    
+    
 class ColumnSelector(BaseEstimator, TransformerMixin):
     def __init__(self, columns):
         self.columns = columns
@@ -51,9 +50,10 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
     def fit(self, X, *_):
         return self
 
+    
+    
 class DFStandardScaler(TransformerMixin):
     # StandardScaler but for pandas DataFrames
-
     def __init__(self):
         self.ss = None
         self.mean_ = None
@@ -72,9 +72,10 @@ class DFStandardScaler(TransformerMixin):
         Xscaled = pd.DataFrame(Xss, index=X.index, columns=X.columns)
         return Xscaled    
     
+    
+    
 class DFFeatureUnion(TransformerMixin):
     # FeatureUnion but for pandas DataFrames
-
     def __init__(self, transformer_list):
         self.transformer_list = transformer_list
 
@@ -89,6 +90,8 @@ class DFFeatureUnion(TransformerMixin):
         Xunion = reduce(lambda X1, X2: pd.merge(X1, X2, left_index=True, right_index=True), Xts)
         return Xunion
 
+    
+    
 class TargetEncoding(BaseEstimator, TransformerMixin):
     def __init__(self, columns, n_folds):
         self.columns = columns
@@ -97,7 +100,6 @@ class TargetEncoding(BaseEstimator, TransformerMixin):
         self.global_mean = None
     
     def fit(self, X, y):
-        
         X = X[self.columns]
         self.global_mean = y.mean()
         col_names = X.columns + ['target']
@@ -111,7 +113,6 @@ class TargetEncoding(BaseEstimator, TransformerMixin):
                 X.loc[test_index, col + "_mean_enc"] = X.loc[test_index, col].map(mean_target)               
                 X[col + "_mean_enc"] = X[col + "_mean_enc"].fillna(self.global_mean)
             self.dict_target_encoding[col] = dict(X.groupby(col)[col + "_mean_enc"].mean())
-            
         return self
     
     def transform(self, X):
@@ -119,13 +120,11 @@ class TargetEncoding(BaseEstimator, TransformerMixin):
         for col in self.colums:
             X.loc[:,col] = X[col].map(self.dict_target_encoding[col]) 
         X = X.fillna(self.global_mean)
-        
         return X
 
+    
 
 class DFKBinsOrdinalDiscretizer(TransformerMixin):
-    # StandardScaler but for pandas DataFrames
-
     def __init__(self,cols , n_bins=5,  strategy='quantile'):
         self.n_bins = n_bins
         self.encode = 'ordinal'
@@ -146,18 +145,12 @@ class DFKBinsOrdinalDiscretizer(TransformerMixin):
     
 
 class FillNaDict( BaseEstimator, TransformerMixin ):
-    #Class Constructor 
     def __init__( self, col_fill_dict, final = False ):
-        # Inicialización de atributos
         self._col_fill_dict = col_fill_dict
         self._final = final
     
-    #Return self nothing else to do here    
     def fit( self, X, y = None ):
-        
-        # Si como valor a completar está alguna de las palabras claves mode, mean, median, se calculan estas medidas
-        # y se actualizan los strings por los valores calculados
-
+        # if value equals mode, mean, or median, these measures need to be calculated 
         l_mode = [k for k, v in self._col_fill_dict.items() if v == 'mode']
         l_mean = [k for k, v in self._col_fill_dict.items() if v == 'mean']
         l_median = [k for k, v in self._col_fill_dict.items() if v == 'median']
@@ -177,13 +170,10 @@ class FillNaDict( BaseEstimator, TransformerMixin ):
 
         return self 
     
-    #Method that describes what we need this transformer to do
+
     def transform( self, X, y = None ):
-        
         if((self._final) and (not(all(elem in col_fill_dict.keys())  for elem in X.columns))):
-            raise ValueError("""Al menos una columna del dataframe no se encuentra en el diccionario de valores 
-            a imputar en caso de nulos""")
-            
+            raise ValueError("""Missing column in dict""")
         return X.fillna(self._col_fill_dict)
     
 
@@ -205,7 +195,6 @@ class DFOrdinalEncoder(BaseEstimator, TransformerMixin):
             l_vals = self.dict_enc[col]
             X.loc[:,col] = X[col].map({k:v for v,k in list(enumerate(l_vals))})
             X.loc[:,col] = X.loc[:,col].fillna(len(l_vals))
-            
         return X
     
     def inverse_transform(self, X):
@@ -213,5 +202,4 @@ class DFOrdinalEncoder(BaseEstimator, TransformerMixin):
         for col in self.columns:
             l_vals = self.dict_enc[col]
             X.loc[:,col] = X[col].map({k:v for k,v in list(enumerate(l_vals))})
-        
         return X
