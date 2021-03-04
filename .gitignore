@@ -1,6 +1,7 @@
 .ipynb_checkpoints/
 debug.log
-Data/
 .vs
 pkl
 */__pycache__/*
+data/
+datos/
