@@ -14,8 +14,9 @@ Una vez clonado el repositorio, es necesario:
   - poder de cómputo (16Gb RAM, procesador i5)
   - no quería demorarme demasiado en la entrega de la resolución 
  
-Es por eso que se listan en éste documento algunas de las ideas que se me ocurrieron y que podriá probar en cada caso.
+Es por eso que se listan en éste documento algunas de las ideas que se me ocurrieron y que podría probar en cada caso.
  
+
 ## 📌 Exploracion y analisis
 En esté inciso, al traer los datos, aproveche para dejar las columnas que me interesaban para el siguiente 
 
@@ -27,6 +28,7 @@ Además, podría haber aplicado algún método de selección de features. Lo que
 
 También, podría haber realizado una matriz de correlación con las features numéricas, para ver si alguna estaba fuertemente correlacionada con el target.
 
+
 ## 📌 Modelo
 
 ### Data set
@@ -37,22 +39,26 @@ En un principio las había seleccionado ya que quería provar codificar sus valo
 
 Cuando vi el atributo 'título' también se me vino a la mente el uso de embeddings, pero en este caso hay una etapa muy fuerte de limpieza (considerando faltas de ortografia, abreviaciones, uso de tildes, etc), y no iba a llegar.
 
+Si llegaba a conseguir estas representaciones con embeddings, lo que faltaba era agregar una a una las dimensiones de los vectores como nuevas featrues para el clasificador, considerando cada dimension modela cierto aspecto.
+
+
 ### Training
 
 A la hora de elegir un método de optimización para la elección de hyper parámetros, opté por Grid Search, pero también podría haber probado con Random Search y Bayes.
 
 Además, podría haber agregado más configuraciones en el listado a probar.
 
-Además de usar SMOTE para oversampling, podría haber probado NearMiss para hacer un undersampling de la clase mayoritaria.
+Usé SMOTE para oversampling, y también podría haber probado NearMiss para hacer un undersampling de la clase mayoritaria.
 
 La función de error a optimizar que elegí es f1_macro, ya que resume el presicion y recall de cada clase y al ser 'macro' sirve para problemas de desbalanceo.
+
 
 ### Evaluación
 
 Nota: más allá de que el notebook de evaluación es totalmente configurable a la hora de elegir el data set a usar, lo repliqué para que queden por un lado los resultados con el data set de test, y por el otro los de train.
 
-Lo que esperaba ver, más allá del resultado del accuracy (no suele ser tan alto en este tipo de problemas, con tantas clases), es que al visualizar la matriz de confusión, "se marque la diagonal", y para cada clase, se vaya viendo un degrade hacia los costados; es decir, que le acierte a la gran mayoria de casos, y que si el modelo se equivoca, que sea con clases cercanas. No estaría bueno que se confunda la clase más alta con la más baja por ejemplo, ya que no deberían parecerse.
+Lo que esperaba ver, aparte del resultado del accuracy (no suele ser tan alto en este tipo de problemas, con tantas clases), es que al visualizar la matriz de confusión, "se marque la diagonal", y para cada clase, se vaya viendo un degrade hacia los costados; es decir, que el modelo le acierte a la gran mayoria de casos, y que si se equivoca, que sea mayoritariamente con clases cercanas. Para ilustrar un caso extremo, no estaría bueno que se confunda la clase más alta con la más baja por ejemplo, ya que no deberían parecerse.
 
-Viendo los resulados para ambos data sets, queda en evidencia que tanto para el xbg como el mlp, estamos ante la presencia de overfitting. Los modelos no generalizan lo visto con los datos de entrenamiento, y ante datos nuevos, responden mal. Para solucionar esto, incorporaría regularización a la hora de entrenar. Esto implicaría agregar nuevos valores a probar para ciertos hyperparámetros.
+Viendo los resulados para ambos data sets, queda en evidencia que tanto para el xbg como el mlp, estamos ante la presencia de *overfitting*. Los modelos no generalizan lo visto en los datos de entrenamiento, y ante datos nuevos, responden mal. Para solucionar esto, incorporaría regularización. Esto implicaría agregar nuevos valores a probar para ciertos hyperparámetros.
 
-Para el caso de lr, nos damos cuenta ni siquiera logró modelar la data de entrenamiento. 
+Para el caso de lr, nos damos cuenta ni siquiera logró modelar la data de entrenamiento. Estamos ante un caso de *underfitting*.
