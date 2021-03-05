@@ -14,7 +14,7 @@ class DummyTransformer(TransformerMixin):
         cols = self.columns
         dict_col_vals = dict()
         for col in cols:
-            a,_ = np.unique(X[col].dropna(), return_inverse=True)
+            a,_ = np.unique(X[col].astype(str).dropna(), return_inverse=True)
             dict_col_vals[col]=a
         self.dict_values = dict_col_vals    
         return self
@@ -186,7 +186,7 @@ class DFOrdinalEncoder(BaseEstimator, TransformerMixin):
     def fit(self, X, *_):
         X = X[self.columns]
         for col in self.columns:
-            self.dict_enc[col] = list(X[col].unique())
+            self.dict_enc[col] = sorted(list(X[col].unique()))
         return self
     
     def transform(self, X, *_):
