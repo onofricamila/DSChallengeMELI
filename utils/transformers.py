@@ -90,40 +90,8 @@ class DFFeatureUnion(TransformerMixin):
         Xunion = reduce(lambda X1, X2: pd.merge(X1, X2, left_index=True, right_index=True), Xts)
         return Xunion
 
-    
-    
-class TargetEncoding(BaseEstimator, TransformerMixin):
-    def __init__(self, columns, n_folds):
-        self.columns = columns
-        self.kfold = KFold(n_splits = n_folds, shuffle = True, random_state = 2)
-        self.dict_target_encoding = {}
-        self.global_mean = None
-    
-    def fit(self, X, y):
-        X = X[self.columns]
-        self.global_mean = y.mean()
-        col_names = X.columns + ['target']
-        X = pd.concat([X,y],axis=1)
-        X.columns = col_names
-        dict_col_enc = {}
-        
-        for col in self.columns:
-            for train_index, test_index in self.kfold.split(X):
-                mean_target = X.iloc[train_index].groupby(col)['target'].mean()
-                X.loc[test_index, col + "_mean_enc"] = X.loc[test_index, col].map(mean_target)               
-                X[col + "_mean_enc"] = X[col + "_mean_enc"].fillna(self.global_mean)
-            self.dict_target_encoding[col] = dict(X.groupby(col)[col + "_mean_enc"].mean())
-        return self
-    
-    def transform(self, X):
-        X = X[self.columns]
-        for col in self.colums:
-            X.loc[:,col] = X[col].map(self.dict_target_encoding[col]) 
-        X = X.fillna(self.global_mean)
-        return X
 
     
-
 class DFKBinsOrdinalDiscretizer(TransformerMixin):
     def __init__(self,cols , n_bins=5,  strategy='quantile'):
         self.n_bins = n_bins
